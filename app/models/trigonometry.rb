@@ -440,7 +440,7 @@ class Trigonometry < ApplicationRecord
     def refactor_encode_hash encode_hash
       if encode_hash.kind_of? Hash
         if encode_hash[:array_elements].length == 1
-          return encode_hash[:array_elements][0]
+          return Trigonometry.refactor_encode_hash encode_hash[:array_elements][0]
         else
           new_array_elements = Array.new
           encode_hash[:array_elements].each do |element|
@@ -458,6 +458,66 @@ class Trigonometry < ApplicationRecord
             end
           end
           encode_hash[:array_elements] = new_array_elements
+          return self.colect_constant encode_hash
+        end
+      else
+        return encode_hash
+      end
+    end
+
+    def colect_constant encode_hash
+      if encode_hash.kind_of? Hash
+        array_constant = Array.new
+        array_deleted = Array.new
+        encode_hash[:array_elements].each_index do |index|
+          if encode_hash[:array_elements][index].kind_of? Hash
+            if self.check_hash_is_number encode_hash[:array_elements][index]
+              constant = encode_hash[:array_elements][index][:array_elements].join(encode_hash[:array_elements][index][:method])
+              constant = eval(constant)
+              array_constant.push constant
+              array_deleted.push encode_hash[:array_elements][index]
+            else
+              encode_hash[:array_elements][index] = self.colect_constant encode_hash[:array_elements][index]
+            end
+          else
+            if self.is_number? encode_hash[:array_elements][index]
+              array_constant.push encode_hash[:array_elements][index]
+              array_deleted.push encode_hash[:array_elements][index]
+            end
+          end
+        end
+        if array_constant.length > 1
+          new_constant = array_constant.join(encode_hash[:method])
+          new_constant = eval(new_constant)
+          array_deleted.each do |deleted_element|
+            encode_hash[:array_elements].delete deleted_element
+          end
+          if encode_hash[:method] == "*"
+            unless new_constant == 1
+              if new_constant < 0
+                encode_hash[:array_elements].unshift "-1"
+                encode_hash[:array_elements].push (-new_constant).to_s
+              else
+                encode_hash[:array_elements].push (new_constant).to_s
+              end
+            end
+          elsif encode_hash[:method] == "+"
+            unless new_constant == 0
+              if new_constant < 0
+                encode_hash[:array_elements].push ({
+                  method: "*",
+                  array_elements: [
+                    "-1",
+                    (-new_constant).to_s
+                  ]
+                })
+              else
+                encode_hash[:array_elements].push (new_constant).to_s
+              end
+            end
+          end
+          return encode_hash
+        else
           return encode_hash
         end
       else
@@ -514,6 +574,78 @@ class Trigonometry < ApplicationRecord
       else
         return false
       end
+    end
+
+    def is_number? string
+      true if Float(string) rescue false
+    end
+
+    def check_hash_is_number hash
+      hash[:array_elements].each do |element|
+        if element.kind_of? Hash
+          return false
+        else
+          unless self.is_number? element
+            return false
+          end
+        end
+      end
+      return true
+    end
+
+    def convert_normal_type encode_hash
+      if encode_hash.kind_of? Hash
+        normal_type = ""
+        encode_hash[:array_elements].each_index do |index|
+          if encode_hash[:array_elements][index].kind_of? Hash
+            normal_type += "[ " + self.convert_normal_type(
+              encode_hash[:array_elements][index]) + " ]"
+          else
+            normal_type += encode_hash[:array_elements][index]
+          end
+          unless index == encode_hash[:array_elements].length - 1
+            normal_type += " #{ encode_hash[:method] } "
+          end
+        end
+        return normal_type
+      else
+        return encode_hash
+      end
+    end
+
+    def decode_in_parentheses encode_hash
+      if Calculate.have_variable? encode_hash
+        in_parentheses = encode_hash.split("(")[1].split(")")[0]
+        if in_parentheses.include? ("{")
+          in_parentheses = eval(in_parentheses)
+        end
+        return encode_hash.split("(")[0] + "(" + self.convert_normal_type(in_parentheses) + ")"
+      else
+        return encode_hash
+      end
+    end
+
+    def decode_element_has_variable encode_hash
+      if encode_hash.kind_of? Hash
+        new_array_elements = Array.new
+        encode_hash[:array_elements].each do |element|
+          if element.kind_of? Hash
+            new_array_elements.push(self.decode_element_has_variable element)
+          else
+            new_array_elements.push(self.decode_in_parentheses element)
+          end
+        end
+        encode_hash[:array_elements] = new_array_elements
+        return encode_hash
+      else
+        return self.decode_in_parentheses encode_hash
+      end
+    end
+
+    def decode_equation encode_hash
+      result = self.decode_element_has_variable encode_hash
+      result = self.convert_normal_type encode_hash
+      return result + " = 0"
     end
   end
 end

@@ -283,13 +283,14 @@ class Calculate < ApplicationRecord
       x = [eval("1/#{ coefficient[0].to_f }"), eval("-#{ coefficient[1] }/#{ coefficient[0].to_f }")]
 
       if trigonometric_equation.kind_of? Hash
-        trigonometric_equation[:array_elements].each_index do |index|
-          if trigonometric_equation[:array_elements][index].kind_of? Hash
-            new_element = self.calculate_new_equation trigonometric_equation[:array_elements][index], new_variable
-            trigonometric_equation[:array_elements][index] = new_element
+        copy_trigonometric_equation = self.copy_hash_element trigonometric_equation
+        copy_trigonometric_equation[:array_elements].each_index do |index|
+          if copy_trigonometric_equation[:array_elements][index].kind_of? Hash
+            new_element = self.calculate_new_equation copy_trigonometric_equation[:array_elements][index], new_variable
+            copy_trigonometric_equation[:array_elements][index] = new_element
           else
-            if Calculate.have_variable? trigonometric_equation[:array_elements][index]
-              element_in_parenthesis = trigonometric_equation[:array_elements][index].split("(")[1].split(")")[0]
+            if Calculate.have_variable? copy_trigonometric_equation[:array_elements][index]
+              element_in_parenthesis = copy_trigonometric_equation[:array_elements][index].split("(")[1].split(")")[0]
               if element_in_parenthesis.include?("{")
                 element_in_parenthesis = eval(element_in_parenthesis)
               end
@@ -299,11 +300,11 @@ class Calculate < ApplicationRecord
                 (x[1] * element_coefficient[0].to_f + element_coefficient[1].to_f).to_s
               ]
               new_element = (self.recover_simple_equation new_element_coefficient).to_s
-              trigonometric_equation[:array_elements][index] = trigonometric_equation[:array_elements][index].split("(")[0] + "(" + new_element + ")"
+              copy_trigonometric_equation[:array_elements][index] = copy_trigonometric_equation[:array_elements][index].split("(")[0] + "(" + new_element + ")"
             end
           end
         end
-        return trigonometric_equation
+        return copy_trigonometric_equation
       else
         if Calculate.have_variable? trigonometric_equation
           return trigonometric_equation.split("(")[0] + "(x)"
@@ -320,6 +321,66 @@ class Calculate < ApplicationRecord
         end
       end
       return have_variable
+    end
+
+    def copy_hash_element hash_element
+      copy_hash_element = {
+        method: hash_element[:method],
+        array_elements: Array.new
+      }
+      hash_element[:array_elements].each do |element|
+        if element.kind_of? Hash
+          copy_hash_element[:array_elements].push(self.copy_hash_element element)
+        else
+          copy_hash_element[:array_elements].push(element)
+        end
+      end
+      return copy_hash_element
+    end
+
+    def mul_to_plus trigonometric_equation
+      if trigonometric_equation.kind_of? Hash
+        if trigonometric_equation[:method] == "*"
+          array_index_plus = Array.new
+          trigonometric_equation[:array_elements].each_index do |index|
+            if trigonometric_equation[:array_elements][index].kind_of? Hash
+              if trigonometric_equation[:array_elements][index][:method] == "+"
+                array_index_plus.push index
+              end
+            end
+          end
+          if array_index_plus.length == 1
+            plus_element = trigonometric_equation[:array_elements].delete_at array_index_plus[0]
+
+            new_trigonometric_equation = {
+              method: "+",
+              array_elements: Array.new
+            }
+
+            plus_element[:array_elements].each do |element|
+              new_element = {
+                method: "*",
+                array_elements: Array.new
+              }
+              trigonometric_equation[:array_elements].each do |trigonometric_equation_element|
+                new_element[:array_elements].push trigonometric_equation_element
+              end
+              new_element[:array_elements].push element
+              new_trigonometric_equation[:array_elements].push new_element
+            end
+            return Trigonometry.refactor_encode_hash new_trigonometric_equation
+          else
+            return trigonometric_equation
+          end
+        else
+          trigonometric_equation[:array_elements].each_index do |index|
+            trigonometric_equation[:array_elements][index] = self.mul_to_plus trigonometric_equation[:array_elements][index]
+          end
+          return Trigonometry.refactor_encode_hash trigonometric_equation
+        end
+      else
+        return trigonometric_equation
+      end
     end
   end
 end
