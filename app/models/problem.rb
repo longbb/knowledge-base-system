@@ -452,5 +452,439 @@ class Problem < ApplicationRecord
         end
       end
     end
+
+    def solve_problem type, parameters
+      case type
+      when "bt11"
+        Problem.solve_problem_bt11 parameters
+      when "bt12"
+        Problem.solve_problem_bt12 parameters
+      when "bt13"
+        Problem.solve_problem_bt13 parameters
+      when "bt14"
+        Problem.solve_problem_bt14 parameters
+      when "bt21"
+        Problem.solve_problem_bt21 parameters
+      when "bt22"
+        Problem.solve_problem_bt22 parameters
+      when "bt23"
+        Problem.solve_problem_bt23 parameters
+      when "bt24"
+        Problem.solve_problem_bt24 parameters
+      when "bt31"
+        Problem.solve_problem_bt31 parameters
+      when "bt41"
+        Problem.solve_problem_bt41 parameters
+      when "bt51"
+        Problem.solve_problem_bt51 parameters
+      when "bt52"
+        Problem.solve_problem_bt52 parameters
+      end
+    end
+
+    # bt11: a*sin(x) + b = 0
+    def solve_problem_bt11 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      m = (-1)*b/a
+      if (m > 1) || (m < -1)
+        message = { message: "Phương trình vô nghiệm", equation: [] }
+      else
+        equation = Math.asin(m) * 180 / Math::PI
+        if (equation == 90)
+          message = { message: "Phương trình có nghiệm", equation: [equation.floor.to_s + " + k*360"] }
+        else
+          message = { message: "Phương trình có nghiệm", equation: [equation.floor.to_s + " + k*360", (180-equation.floor).to_s + " + k*360"] }
+        end
+      end
+      result.push(message)
+      return result
+    end
+
+    # bt12: a*cos(x) + b = 0
+    def solve_problem_bt12 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      m = (-1)*b/a
+      if (m > 1) || (m < -1)
+        message = { message: "Phương trình vô nghiệm", equation: [] }
+      else
+        equation = Math.acos(m) * 180 / Math::PI
+        if (equation == 0 || equation == 180)
+          message = { message: "Phương trình có nghiệm", equation: [equation.floor.to_s + " + k*360"] }
+        else
+          message = { message: "Phương trình có nghiệm", equation: [equation.floor.to_s + " + k*360", (-1 *equation.floor).to_s + " + k*360"] }
+        end
+      end
+      result.push(message)
+      return result
+    end
+
+    # bt13: a*tan(x) + b = 0
+    def solve_problem_bt13 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      m = (-1)*b/a
+      result.push({ message: "Điều kiện:", equation: "x != 90 + k*180" })
+      equation = Math.atan(m) * 180 / Math::PI
+      result.push({ message: "Phương trình có nghiệm", equation: [equation.floor.to_s + " + k*180"] })
+      return result
+    end
+
+    # bt14: a*cotan(x) + b = 0
+    def solve_problem_bt14 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      m = (-1)*b/a
+      result.push({ message: "Điều kiện:", equation: "x != k*180" })
+      equation =  Math.atan(1/m) * 180 / Math::PI
+      result.push({ message: "Phương trình có nghiệm", equation: [equation.floor.to_s + " + k*180"] })
+      return result
+    end
+
+    # a*t^2 + b*t + c = 0
+    def solve_equation_level_2 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      delta = b ** 2 - 4*a*c
+      if delta > 0
+        x1 = -(b + Math.sqrt(delta)) / (2*a)
+        x2 = -(b - Math.sqrt(delta)) / (2*a)
+        message = { message: "Phương trình có 2 nghiệm", equation: [x1, x2] }
+      elsif delta == 0
+        x = -b/(2*a)
+        message = { message: "Phương trình có 1 nghiệm", equation: [x] }
+      else
+        message = { message: "Phương trình vô nghiệm", equation: [] }
+      end
+      result.push(message)
+      return result
+    end
+
+    # bt21: a * sin(x) ^ 2 + b * sin(x) + c = 0
+    def solve_problem_bt21 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      result.push({ message: "Đặt sin(x) = t ta có: ", equation: new_problem })
+      array_equation = Problem.solve_equation_level_2 parameters
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+        arr_x = Array.new
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "sin(x) = " + equation.to_s }
+          result.push(step3)
+          step4 = Problem.solve_problem_bt11 [1, equation]
+          step4[step4.length-1][:equation].each do |x|
+            arr_x.push(x)
+          end
+          step4.each do |step|
+            result.push(step)
+          end
+        end
+        result.push({ message: "Phương trình ban đầu có nghiệm ", equation: arr_x })
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm ", equation: [] })
+      end
+      return result
+    end
+
+    # bt22: a * cos(x) ^ 2 + b * cos(x) + c = 0
+    def solve_problem_bt22 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      result.push({ message: "Đặt cos(x) = t ta có", equation: new_problem })
+      array_equation = Problem.solve_equation_level_2 parameters
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+        arr_x = Array.new
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "cos(x) = " + equation.to_s }
+          result.push(step3)
+          step4 = Problem.solve_problem_bt12 [1, equation]
+          step4[step4.length-1][:equation].each do |x|
+            arr_x.push(x)
+          end
+          step4.each do |step|
+            result.push(step)
+          end
+        end
+        result.push({ message: "Phương trình ban đầu có nghiệm ", equation: arr_x })
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm ", equation: [] })
+      end
+      return result
+    end
+
+    # bt23: a * tan(x) ^ 2 + b * tan(x) + c = 0
+    def solve_problem_bt23 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      result.push({ message: "Đặt tan(x) = t ta có", equation: new_problem })
+      array_equation = Problem.solve_equation_level_2 parameters
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+        arr_x = Array.new
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "tan(x) = " + equation.to_s }
+          result.push(step3)
+          step4 = Problem.solve_problem_bt13 [1, equation]
+          step4[step4.length-1][:equation].each do |x|
+            arr_x.push(x)
+          end
+          step4.each do |step|
+            result.push(step)
+          end
+        end
+        result.push({ message: "Phương trình ban đầu có nghiệm ", equation: arr_x })
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm ", equation: [] })
+      end
+      return result
+    end
+
+    # bt24: a * cotan(x) ^ 2 + b * cotan(x) + c = 0
+    def solve_problem_bt23 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      result.push({ message: "Đặt cotan(x) = t ta có", equation: new_problem })
+      array_equation = Problem.solve_equation_level_2 parameters
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+        arr_x = Array.new
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "cotan(x) = " + equation.to_s }
+          result.push(step3)
+          step4 = Problem.solve_problem_bt14 [1, equation]
+          step4[step4.length-1][:equation].each do |x|
+            arr_x.push(x)
+          end
+          step4.each do |step|
+            result.push(step)
+          end
+        end
+        result.push({ message: "Phương trình ban đầu có nghiệm ", equation: arr_x })
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm ", equation: [] })
+      end
+      return result
+    end
+
+    #bt31: a*sin(x) + b*cos(x) + c = 0
+    def solve_problem_bt31 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      arr_x = Array.new
+      if a * Math.sqrt(1 - Math.cos(Math::PI) ** 2) + b * Math.cos(Math::PI) + c != 0
+        step1 = {
+          message: "Với cos(x/2) = 0 <=> x = 180 + k*360, ta có: ",
+          equation: "Phương trình vô nghiệm"
+        }
+      else
+        step1 = {
+          message: "Với cos(x/2) = 0 <=> x = 180 + k*360, ta có: ",
+          equation: "Phương trình thỏa mãn"
+        }
+        arr_x.push("180 + k*360")
+      end
+      result.push(step1)
+      result.push({
+        message: "Với cos(x/2) != 0 <=> x != 180 + k*360, Đặt t = tan(x/2), suy ra: \n" +
+          "sin(x) = 2*t/(1 + t^2), cos(x) = (1 - t^2)/(1 + t^2). \n Khi đó phương trình ban đầu có dạng: ",
+        equation: a.to_s + "*2*t/(1 + t^2) + " + b.to_s + "*(1 - t^2)/(1 + t^2)" + c.to_s
+      })
+      result.push({
+        message: "<=>",
+        equation: "(" + c.to_s + " + " + b.to_s + ")* t^2 -2*" + a.to_s + "*t + " + c.to_s + " - " + b.to_s + " = 0"
+      })
+      array_equation = Problem.solve_equation_level_2 [c+b, (-2)*a, c-b]
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "tan(x/2) = " + equation.to_s }
+          result.push(step3)
+          step4 = Problem.solve_problem_bt13 [1, equation]
+          x = step4[1][:equation][0].split(" + ")[0].to_i * 2
+          if x == 180
+            result.push({ message: "Loại vì x != 180 + k*360 => Phương trình vô nghiệm", equation: [] })
+          else
+            arr_x.push(x.to_s + " + k*360")
+          end
+        end
+        step5 = {
+          message: "Phương trình có nghiệm",
+          equation: arr_x
+        }
+        result.push(step5)
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm", equation: [] })
+      end
+      return result
+    end
+
+    # bt41: a* sin(x)^2 + b*sin(x)*cos(x) + c * cos(x)^2 + d = 0
+    def solve_problem_bt41 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      d = parameters[3]
+      result.push({
+        message: "Sử dụng sin(x)^2 = (1 - cos(2*x))/2, cos(x)^2 = (1 + cos(2*x))/2, sin2x = 2 * sin(x) * cos(x) ta được: ",
+        equation: b.to_s + "*sin(2*x) + " + (c-a).to_s + "*cos(2*x) = " + (d-c-a).to_s + " (1)"
+      })
+      result.push({
+        message: "Đặt 2*x = t ta có: ",
+        equation: b.to_s + "*sin(t) + " + (c-a).to_s + "*cos(t) = " + (d-c-a).to_s + " (2)"
+      })
+      step = Problem.solve_problem_bt31 [b, c-a, c+a-d]
+      result.push(step)
+      if step[step.length - 1][:equation].length == 0
+        result.push({
+          message: "Phương trình (1) vô nghiệm",
+          equation: []
+        })
+      else
+        arr_x = Array.new
+        step[step.length - 1][:equation].each do |equation|
+          value = equation.split(" + ")[0].to_i
+          result.push({
+            message: "Trả về biến cũ phương trình (1) ta có: ",
+            equation: "2*x = " + equation.to_s
+          })
+          arr_x.push((value/2).to_s + "+ k*180")
+        end
+        result.push({
+          message: "Phương trình (1) có nghiệm: ",
+          equation: arr_x
+        })
+      end
+      return result
+    end
+
+    #bt51: a*(sin(x) + cos(x)) + b* sin(x) * cos(x) + c = 0
+    def solve_problem_bt51 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      result.push({
+        message: "Đặt sin(x) + cos(x) = t, điều kiện |t| <= sqrt(2) suy ra sin(x)*cos(x) = (t^2 -1)/2.\n " +
+          "Khi đó phương trình ban đầu có dạng: ",
+        equation: a.to_s + "*t + " + b.to_s + "*(t^2 -1)/2 + " + c.to_s + " = 0"
+      })
+      result.push({
+        message: "<=>",
+        equation: b.to_s + "*t^2 + 2*" + a.to_s + "*t + 2*" + c.to_s + " - " + b.to_s + " = 0"
+      })
+      array_equation = Problem.solve_equation_level_2 [b, 2*a, 2*c-b]
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+        arr_x = Array.new
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "sin(x) + cos(x) = " + equation.to_s }
+          result.push(step3)
+          if (equation <= Math.sqrt(2)) && (equation >= (-1)*Math.sqrt(2))
+            step = Problem.solve_problem_bt31 [1, 1, (-1)*equation]
+            result.push(step)
+            if step[step.length - 1][:equation].length != 0
+              step[step.length - 1][:equation].each do |equation|
+                value = equation.split(" + ")[0].to_i
+                arr_x.push(value.to_s + "+ k*360")
+              end
+            end
+          else
+            result.push({
+              message: "Loại nghiệm này do không thỏa mãn điều kiện |t| <= sqrt(2)",
+              equation: []
+            })
+          end
+        end
+        step5 = {
+          message: "Vậy Phương trình có nghiệm",
+          equation: arr_x
+        }
+        result.push(step5)
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm", equation: [] })
+      end
+      return result
+    end
+
+    #bt52: a*(sin(x) - cos(x)) + b* sin(x) * cos(x) + c = 0
+    def solve_problem_bt52 parameters
+      result = Array.new
+      a = parameters[0]
+      b = parameters[1]
+      c = parameters[2]
+      result.push({
+        message: "Đặt sin(x) - cos(x) = t, điều kiện |t| <= sqrt(2) suy ra sin(x)*cos(x) = (1 - t^2)/2.\n " +
+          "Khi đó phương trình ban đầu có dạng: ",
+        equation: a.to_s + "*t + " + b.to_s + "*(1 - t^2)/2 + " + c.to_s + " = 0"
+      })
+      result.push({
+        message: "<=>",
+        equation: b.to_s + "*t^2 - 2*" + a.to_s + "*t - 2*" + c.to_s + " - " + b.to_s + " = 0"
+      })
+      array_equation = Problem.solve_equation_level_2 [b, 2*a, 2*c-b]
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
+      result.push(step2)
+      if array_equation[0][:equation].length != 0
+        arr_x = Array.new
+        array_equation[0][:equation].each do |equation|
+          step3 = { message: "Trả về biến cũ ta có: ", equation: "sin(x) - cos(x) = " + equation.to_s }
+          result.push(step3)
+          if (equation <= Math.sqrt(2)) && (equation >= (-1)*Math.sqrt(2))
+            step = Problem.solve_problem_bt31 [1, 1, (-1)*equation]
+            result.push(step)
+            if step[step.length - 1][:equation].length != 0
+              step[step.length - 1][:equation].each do |equation|
+                value = equation.split(" + ")[0].to_i
+                arr_x.push(value.to_s + "+ k*360")
+              end
+            end
+          else
+            result.push({
+              message: "Loại nghiệm này do không thỏa mãn điều kiện |t| <= sqrt(2)",
+              equation: []
+            })
+          end
+        end
+        step5 = {
+          message: "Vậy Phương trình có nghiệm",
+          equation: arr_x
+        }
+        result.push(step5)
+      else
+        result.push({ message: "Phương trình ban đầu vô nghiệm", equation: [] })
+      end
+      return result
+    end
   end
 end
