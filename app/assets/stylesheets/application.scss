@@ -1,7 +1,7 @@
 @import "bootstrap.min";
 body {
   font-size: 20px;
-  background-color: #F9F;
+  background-image: asset_url("bg.jpg");
   padding: 30px;
   border-radius: 10px;
 }
@@ -43,4 +43,7 @@ table {
 }
 .first {
   border-right: 1px solid grey;
+}
+#step {
+  font-weight: bold;
 }
