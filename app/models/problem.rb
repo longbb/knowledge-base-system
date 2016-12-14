@@ -235,7 +235,9 @@ class Problem < ApplicationRecord
     def check_bt4 trigonometric_equation
       trigonometric_equation[:array_elements].each do |element|
         unless Calculate.power_of_equation(element) == 2
-          return false
+          unless self.is_constant element
+            return false
+          end
         end
       end
       return true
@@ -249,56 +251,60 @@ class Problem < ApplicationRecord
       array_coefficient_1 = Array.new
       array_coefficient_2 = Array.new
       array_coefficient_3 = Array.new
-      result = ["0", "0", "0"]
+      result = ["0", "0", "0", "0"]
       trigonometric_equation[:array_elements].each do |element|
-        if element[:method] == "^"
-          if element == sin_level_2
-            array_coefficient_1.push "1"
-          elsif element == cos_level_2
-            array_coefficient_3.push "1"
-          end
-        else
-          if element[:array_elements].include? sin_level_2
-            if element[:array_elements].length == 2
-              element[:array_elements].each do |child_element|
-                unless child_element == sin_level_2
-                  array_coefficient_1.push child_element
-                end
-              end
-            else
-              element[:array_elements].each do |child_element|
-                if child_element != sin_level_2 && child_element != "-1"
-                  array_coefficient_1.push("-" + child_element)
-                end
-              end
-            end
-          elsif element[:array_elements].include? cos_level_2
-            if element[:array_elements].length == 2
-              element[:array_elements].each do |child_element|
-                unless child_element == cos_level_2
-                  array_coefficient_3.push child_element
-                end
-              end
-            else
-              element[:array_elements].each do |child_element|
-                if child_element != cos_level_2 && child_element != "-1"
-                  array_coefficient_3.push("-" + child_element)
-                end
-              end
+        if element.kind_of? Hash
+          if element[:method] == "^"
+            if element == sin_level_2
+              array_coefficient_1.push "1"
+            elsif element == cos_level_2
+              array_coefficient_3.push "1"
             end
           else
-            if element[:array_elements].length == 2
-              array_coefficient_2.push "1"
-            elsif element[:array_elements].length == 3
-              element[:array_elements].each do |child_element|
-                if child_element != "sin(x)" && child_element != "cos(x)"
-                  array_coefficient_2.push child_element
+            if element[:array_elements].include? sin_level_2
+              if element[:array_elements].length == 2
+                element[:array_elements].each do |child_element|
+                  unless child_element == sin_level_2
+                    array_coefficient_1.push child_element
+                  end
+                end
+              else
+                element[:array_elements].each do |child_element|
+                  if child_element != sin_level_2 && child_element != "-1"
+                    array_coefficient_1.push("-" + child_element)
+                  end
+                end
+              end
+            elsif element[:array_elements].include? cos_level_2
+              if element[:array_elements].length == 2
+                element[:array_elements].each do |child_element|
+                  unless child_element == cos_level_2
+                    array_coefficient_3.push child_element
+                  end
+                end
+              else
+                element[:array_elements].each do |child_element|
+                  if child_element != cos_level_2 && child_element != "-1"
+                    array_coefficient_3.push("-" + child_element)
+                  end
                 end
               end
             else
-              element[:array_elements].each do |child_element|
-                unless ["sin(x)", "cos(x)", "-1"].include? child_element
-                  array_coefficient_2.push("-" + child_element)
+              unless self.is_constant element
+                if element[:array_elements].length == 2
+                  array_coefficient_2.push "1"
+                elsif element[:array_elements].length == 3
+                  element[:array_elements].each do |child_element|
+                    if child_element != "sin(x)" && child_element != "cos(x)"
+                      array_coefficient_2.push child_element
+                    end
+                  end
+                else
+                  element[:array_elements].each do |child_element|
+                    unless ["sin(x)", "cos(x)", "-1"].include? child_element
+                      array_coefficient_2.push("-" + child_element)
+                    end
+                  end
                 end
               end
             end
@@ -308,6 +314,7 @@ class Problem < ApplicationRecord
       result[0] = self.sum_coefficient array_coefficient_1
       result[1] = self.sum_coefficient array_coefficient_2
       result[2] = self.sum_coefficient array_coefficient_3
+      result[3] = self.get_coefficient_constant trigonometric_equation
       return result
     end
 
@@ -453,7 +460,12 @@ class Problem < ApplicationRecord
       end
     end
 
-    def solve_problem type, parameters
+    def solve_problem type, coefficients
+      parameters = Array.new
+      coefficients.each do |coefficient|
+        parameters.push coefficient.to_f
+      end
+
       case type
       when "bt11"
         Problem.solve_problem_bt11 parameters
@@ -573,10 +585,10 @@ class Problem < ApplicationRecord
       a = parameters[0]
       b = parameters[1]
       c = parameters[2]
-      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
       result.push({ message: "Đặt sin(x) = t ta có: ", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
-      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
       if array_equation[0][:equation].length != 0
         arr_x = Array.new
@@ -604,10 +616,10 @@ class Problem < ApplicationRecord
       a = parameters[0]
       b = parameters[1]
       c = parameters[2]
-      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
       result.push({ message: "Đặt cos(x) = t ta có", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
-      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
       if array_equation[0][:equation].length != 0
         arr_x = Array.new
@@ -635,10 +647,10 @@ class Problem < ApplicationRecord
       a = parameters[0]
       b = parameters[1]
       c = parameters[2]
-      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
       result.push({ message: "Đặt tan(x) = t ta có", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
-      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
       if array_equation[0][:equation].length != 0
         arr_x = Array.new
@@ -661,15 +673,15 @@ class Problem < ApplicationRecord
     end
 
     # bt24: a * cotan(x) ^ 2 + b * cotan(x) + c = 0
-    def solve_problem_bt23 parameters
+    def solve_problem_bt24 parameters
       result = Array.new
       a = parameters[0]
       b = parameters[1]
       c = parameters[2]
-      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s
+      new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
       result.push({ message: "Đặt cotan(x) = t ta có", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
-      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation }
+      step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
       if array_equation[0][:equation].length != 0
         arr_x = Array.new

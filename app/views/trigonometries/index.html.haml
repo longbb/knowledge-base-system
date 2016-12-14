@@ -4,7 +4,7 @@
       .col-md-6.first
         %h3.text-center Caculator
         #result
-          = form_tag(trigonometries_path, method: :post) do
+          = form_tag(trigonometries_path, method: :get) do
             .form-group
               = text_field_tag :trigonometry_equation, params[:trigonometry_equation], id: "trigonometry_equation", readonly: true, class: "form-control"
             .form-group
@@ -68,17 +68,21 @@
                 #equal.btn.btn-success =
       .col-md-6.scroll
         %h2.text-center Lời giải chi tiết
-        - if @solution.present?
-          - @solution[:array_steps].each do |step|
-            %p
-              = step[:message]
-            %p
-              - if step[:equation].kind_of? Hash
-                = Trigonometry.decode_equation step[:equation]
-              - elsif step[:equation].kind_of? Array
-                = step[:equation].join(" hoặc ")
-              - else
-                = step[:equation]
+        #solution
+          - if @solution.present?
+            - @solution[:array_steps].each_index do |index|
+              %p
+                %span#step
+                  Bước #{ index + 1 }:
+                = @solution[:array_steps][index][:message]
+              %p
+                %center
+                  - if @solution[:array_steps][index][:equation].kind_of? Hash
+                    = Trigonometry.decode_equation @solution[:array_steps][index][:equation]
+                  - elsif @solution[:array_steps][index][:equation].kind_of? Array
+                    = @solution[:array_steps][index][:equation].join(" hoặc ")
+                  - else
+                    = @solution[:array_steps][index][:equation]
 
 :javascript
   var equal = false;
@@ -92,6 +96,7 @@
     display = "";
     array_caret = [];
     $("#trigonometry_equation").attr("value", string);
+    $("#solution").text("");
   }
 
   function fillCloseCaret() {
