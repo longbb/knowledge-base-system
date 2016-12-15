@@ -1,0 +1,78 @@
+.page-container
+  .page-sidebar
+    %ul.x-navigation
+      %li.xn-logo
+        %a{ href: "#" }
+          %img.logo-edit{ src: asset_path("logo_burned.png"), width: "50%" }
+        %a.x-navigation-control{ href: "#" }
+      %li.xn-profile
+        %a.profile-mini{ :href => "#" }
+          - if current_user.avatar.present?
+            %img{ src: current_user.avatar.picture.thumb }
+          - else
+            %img{ src: asset_path("member.png") }
+        .profile
+          .profile-image
+            - if current_user.avatar.present?
+              %img{ src: current_user.avatar.picture.thumb }
+            - else
+              %img{ src: asset_path("member.png") }
+          .profile-data
+            .profile-data-name #{ current_user.name }
+            .profile-data-title
+              = current_user.email
+          .profile-controls
+            %a.profile-control-left{ href: user_path(current_user) }
+              %span.fa.fa-info
+            %a.profile-control-right{ href: edit_user_path(current_user) }
+              %span.fa.fa-cog
+      %li.xn-title
+        Navigation
+      %li
+        %a{ href: user_path(current_user) }
+          %span.fa.fa-desktop
+          %span.xn-text
+            = current_user.name
+      %li
+        %a{ href: groups_path }
+          %span.fa.fa-desktop
+          %span.xn-text
+            All Groups
+      %li
+        %a{ href: groups_path }
+          %span.fa.fa-desktop
+          %span.xn-text
+            Your Groups
+
+  .page-content
+    %ul.x-navigation.x-navigation-horizontal.x-navigation-panel
+      %li.xn-icon-button
+        %a.x-navigation-minimize{ href: "#"}
+          %span.fa.fa-dedent
+      %li.xn-icon-button.pull-right
+        %a.mb-control{ "data-box": "#mb-signout", href: "#" }
+          %span.fa.fa-sign-out
+    #flash
+      - flash.each do |name, msg|
+        %div{ class: "alert alert-#{ name }" }
+          = msg
+    = yield
+#mb-signout.message-box.animated.fadeIn{ "data-sound": "alert" }
+  .mb-container
+    .mb-middle
+      .mb-title
+        %span.fa.fa-sign-out
+        Log
+        %strong
+          Out
+        ?
+      .mb-content
+        %p
+          Are you sure you want to log out?
+        %p
+          Press No if youwant to continue. Press Yes to logout.
+      .mb-footer
+        .pull-right
+          = link_to "Yes", logout_path, method: :delete, class: "btn btn-danger btn-lg"
+          %button.btn.btn-default.btn-lg.mb-control-close
+            No
