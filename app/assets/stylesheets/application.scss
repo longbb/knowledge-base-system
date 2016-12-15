@@ -13,12 +13,11 @@
 @import "joli/css/animate/animate.min";
 @import "joli/css/theme-default";
 
-body {
-  font-size: 20px;
-  background-image: asset_url("bg.jpg");
-  padding: 30px;
-  border-radius: 10px;
+.logo-edit {
+  width: 25%;
+  margin-top: -10px;
 }
+
 h3 {
   font-family: 'Open Sans';
   font-size: 35px;
