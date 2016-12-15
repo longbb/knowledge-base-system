@@ -39,8 +39,10 @@ ActiveRecord::Schema.define(version: 20161215170221) do
     t.string   "name"
     t.string   "email"
     t.string   "is_expert"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "status"
+    t.string   "password_digest"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
 end
