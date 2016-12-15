@@ -96,7 +96,6 @@
     display = "";
     array_caret = [];
     $("#trigonometry_equation").attr("value", string);
-    $("#solution").text("");
   }
 
   function fillCloseCaret() {
@@ -104,7 +103,7 @@
       string += ")";
       array_caret.pop();
     } else if (array_caret[array_caret.length - 1] === '[') {
-      string += " ]";
+      fillOperandTrigonometry("]");
       array_caret.pop();
     }
   }
@@ -113,6 +112,8 @@
     var check = array_caret[array_caret.length -1];
     if (check == "(") {
       string += operand;
+    } else if (checkEqual()){
+      string += operand + " ";
     } else {
       string += " " + operand + " ";
     }
@@ -156,6 +157,10 @@
       }
     }
     return true;
+  }
+
+  function checkEqual() {
+    return string[string.length - 1] == "="
   }
 
   $("#clear-all").click(function() {
@@ -236,7 +241,7 @@
   });
 
   $("#open-caret").click(function() {
-    string += "[ ";
+    fillOperandTrigonometry("[");
     array_caret.push("[");
     $("#trigonometry_equation").attr("value", string);
   });

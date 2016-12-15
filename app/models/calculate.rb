@@ -263,6 +263,32 @@ class Calculate < ApplicationRecord
       end
     end
 
+    def recover_old_element old_element, new_element
+      new_element = self.analys_simple_equation new_element
+      old_element = [old_element[0].to_f, old_element[1].to_f]
+      new_element = [new_element[0].to_f, new_element[1].to_f]
+      first_element = old_element[0] / new_element[0]
+      second_element =  - (old_element[0] * new_element[1] / new_element[0]) + old_element[1]
+      result = [first_element.to_s, second_element.to_s]
+      return result
+    end
+
+    def calculate_final_result array_variable, result
+      array_variable = [array_variable[0].to_f, array_variable[1].to_f]
+      if result.include? "k"
+        first_element = result.split(" + ")[0].to_f
+        second_element = result.split(" + ")[1].split("k*")[1].to_f
+        final_result_first = array_variable[0] * first_element + array_variable[1]
+        final_result_second = array_variable[0] * second_element
+        final_result = final_result_first.to_s + " + k*" + final_result_second.to_s
+        return final_result
+      else
+        result = result.to_f
+        final_result = array_variable[0] * result + array_variable[1]
+        return final_result.to_s
+      end
+    end
+
     def min_element element1, element2
       if element1[0].to_f < element2[0].to_f
         return element1
@@ -324,18 +350,22 @@ class Calculate < ApplicationRecord
     end
 
     def copy_hash_element hash_element
-      copy_hash_element = {
-        method: hash_element[:method],
-        array_elements: Array.new
-      }
-      hash_element[:array_elements].each do |element|
-        if element.kind_of? Hash
-          copy_hash_element[:array_elements].push(self.copy_hash_element element)
-        else
-          copy_hash_element[:array_elements].push(element)
+      if hash_element.kind_of? Hash
+        copy_hash_element = {
+          method: hash_element[:method],
+          array_elements: Array.new
+        }
+        hash_element[:array_elements].each do |element|
+          if element.kind_of? Hash
+            copy_hash_element[:array_elements].push(self.copy_hash_element element)
+          else
+            copy_hash_element[:array_elements].push(element)
+          end
         end
+        return copy_hash_element
+      else
+        return hash_element
       end
-      return copy_hash_element
     end
 
     def mul_to_plus trigonometric_equation
