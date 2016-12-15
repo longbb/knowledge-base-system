@@ -1,8 +1,18 @@
-%body.row
-  .col-md-10.col-md-offset-1.well
-    .row
-      .col-md-6.first
-        %h3.text-center Caculator
+%ul.breadcrumb
+  %li
+    %a{ href: "#" }
+      Home
+  %li.active
+    Calculator
+.page-title
+  %h1
+    %span.fa.fa-calculator
+    Calculator
+.page-content-wrap
+  .row
+    .col-md-6.col-md-offset-3.well
+      .row
+        %h3.text-center.calculator-logo Trigonometry Calculator
         #result
           = form_tag(trigonometries_path, method: :get) do
             .form-group
@@ -10,79 +20,80 @@
             .form-group
               = submit_tag "Submit", class: "form-control"
         %center
-          %table.table-hover
-            %tr
-              %td
-                #clear-all.btn.btn-danger AC
-              %td
-                #plus.btn.btn-success +
-              %td
-                #subtract.btn.btn-success -
-              %td
-                #multiple.btn.btn-success *
-              %td
-                #divide.btn.btn-success &#247
-              %td
-                #sin.btn.btn-success sin
-            %tr
-              %td
-                #seven.btn.btn-success 7
-              %td
-                #eight.btn.btn-success 8
-              %td
-                #nine.btn.btn-success 9
-              %td
-                #open-caret.btn.btn-success (
-              %td
-                #close-caret.btn.btn-success )
-              %td
-                #cos.btn.btn-success cos
-            %tr
-              %td
-                #four.btn.btn-success 4
-              %td
-                #five.btn.btn-success 5
-              %td
-                #six.btn.btn-success 6
-              %td
-                #variable.btn.btn-success x
-              %td
-                #power.btn.btn-success ^
-              %td
-                #tan.btn.btn-success tan
-            %tr
-              %td
-                #one.btn.btn-success 1
-              %td
-                #two.btn.btn-success 2
-              %td
-                #three.btn.btn-success 3
-              %td
-                #zero.btn.btn-success 0
-              %td
-                #dot.btn.btn-success .
-              %td
-                #cotan.btn.btn-success cotan
-            %tr
-              %td{ colspan: "6" }
-                #equal.btn.btn-success =
-      .col-md-6.scroll
-        %h2.text-center Lời giải chi tiết
-        #solution
-          - if @solution.present?
-            - @solution[:array_steps].each_index do |index|
-              %p
-                %span#step
-                  Bước #{ index + 1 }:
-                = @solution[:array_steps][index][:message]
-              %p
-                %center
-                  - if @solution[:array_steps][index][:equation].kind_of? Hash
-                    = Trigonometry.decode_equation @solution[:array_steps][index][:equation]
-                  - elsif @solution[:array_steps][index][:equation].kind_of? Array
-                    = @solution[:array_steps][index][:equation].join(" hoặc ")
-                  - else
-                    = @solution[:array_steps][index][:equation]
+          .caculator
+            %table.table-hover
+              %tr
+                %td
+                  #clear-all.btn.btn-danger AC
+                %td
+                  #plus.btn.btn-success +
+                %td
+                  #subtract.btn.btn-success -
+                %td
+                  #multiple.btn.btn-success *
+                %td
+                  #divide.btn.btn-success &#247
+                %td
+                  #sin.btn.btn-success sin
+              %tr
+                %td
+                  #seven.btn.btn-success 7
+                %td
+                  #eight.btn.btn-success 8
+                %td
+                  #nine.btn.btn-success 9
+                %td
+                  #open-caret.btn.btn-success (
+                %td
+                  #close-caret.btn.btn-success )
+                %td
+                  #cos.btn.btn-success cos
+              %tr
+                %td
+                  #four.btn.btn-success 4
+                %td
+                  #five.btn.btn-success 5
+                %td
+                  #six.btn.btn-success 6
+                %td
+                  #variable.btn.btn-success x
+                %td
+                  #power.btn.btn-success ^
+                %td
+                  #tan.btn.btn-success tan
+              %tr
+                %td
+                  #one.btn.btn-success 1
+                %td
+                  #two.btn.btn-success 2
+                %td
+                  #three.btn.btn-success 3
+                %td
+                  #zero.btn.btn-success 0
+                %td
+                  #dot.btn.btn-success .
+                %td
+                  #cotan.btn.btn-success cotan
+              %tr
+                %td{ colspan: "6" }
+                  #equal.btn.btn-success =
+      / .col-md-6.scroll
+      /   %h2.text-center Lời giải chi tiết
+      /   #solution
+      /     - if @solution.present?
+      /       - @solution[:array_steps].each_index do |index|
+      /         %p
+      /           %span#step
+      /             Bước #{ index + 1 }:
+      /           = @solution[:array_steps][index][:message]
+      /         %p
+      /           %center
+      /             - if @solution[:array_steps][index][:equation].kind_of? Hash
+      /               = Trigonometry.decode_equation @solution[:array_steps][index][:equation]
+      /             - elsif @solution[:array_steps][index][:equation].kind_of? Array
+      /               = @solution[:array_steps][index][:equation].join(" hoặc ")
+      /             - else
+      /               = @solution[:array_steps][index][:equation]
 
 :javascript
   var equal = false;
