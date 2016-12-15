@@ -1,0 +1,23 @@
+.login-container
+  .login-box.animated.fadeInDown
+    .login-logo
+    .login-body
+      .login-title
+        %strong Log In
+        to your account
+      .form.form-horizontal
+        = form_for(:session, url: login_path) do |f|
+          .form-group
+            .col-md-12
+              = f.email_field :email, class: "form-control", placeholder: "Email"
+          .form-group
+            .col-md-12
+              = f.password_field :password, class: "form-control", placeholder: "Password"
+          .form-group
+            .col-md-6
+              %a.btn.btn-link.btn-block{:href => "#"} Forgot your password?
+            .col-md-6
+              = f.submit "Log in", class: "btn btn-info"
+        .login-subtitle
+          Don't have an account yet?
+          / %a{ href: new_user_path } Create an account
