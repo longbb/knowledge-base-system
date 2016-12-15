@@ -339,20 +339,62 @@ class Trigonometry < ApplicationRecord
         end
 
         hash[:array_elements].each_index do |index|
+          element = hash[:array_elements][index]
+          if element.kind_of? Hash
+            if element[:method] == "*"
+              if element[:array_elements][0] == "-1"
+                if ["*", "^", "/"].include? element[:array_elements].last
+                  operator = element[:array_elements].pop
+                  case operator
+                  when "*"
+                    element[:array_elements].push hash[:array_elements][index + 1]
+                  when "/"
+                    element[:array_elements].push({ method: "^", array_elements: [hash[:array_elements][index + 1], "-1"] })
+                  when "^"
+                    element[:array_elements].push({ method: "^", array_elements: [element[:array_elements].last, hash[:array_elements][index + 1]] })
+                  end
+                  hash[:array_elements].delete_at(index + 1)
+                else
+                  if element[:array_elements].last.kind_of? Hash
+                    child_element = element[:array_elements].last
+                    if ["*", "^", "/"].include? child_element[:array_elements].last
+                      operator = child_element[:array_elements].pop
+                      case operator
+                      when "*"
+                        child_element[:array_elements].push hash[:array_elements][index + 1]
+                      when "/"
+                        child_element[:array_elements].push({ method: "^", array_elements: [hash[:array_elements][index + 1], "-1"] })
+                      when "^"
+                        if child_element[:method] == "^"
+                          child_element[:array_elements].push hash[:array_elements][index + 1]
+                        else
+                          child_element[:array_elements].push({ method: "^", array_elements: [child_element[:array_elements].last, hash[:array_elements][index + 1]] })
+                        end
+                      end
+                      hash[:array_elements].delete_at(index + 1)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        hash[:array_elements].each_index do |index|
           if hash[:array_elements][index].kind_of? Hash
             unless index == 0
               case hash[:array_elements][index][:array_elements].first
               when "*"
                 hash[:array_elements][index][:array_elements].shift
-                if hash[:array_elements][index - 1].kind_of Hash
-                  if hash[:array_elements][index - 1][:method] = "*"
-                    hash[:array_elements][index - 1][:array_elements] += hash[:array_elements][index][array_elements]
+                if hash[:array_elements][index - 1].kind_of? Hash
+                  if hash[:array_elements][index - 1][:method] == "*"
+                    hash[:array_elements][index - 1][:array_elements] += hash[:array_elements][index][:array_elements]
                   else
-                    hash[:array_elements][index][:array_elements].unshirf hash[:array_elements][index - 1]
+                    hash[:array_elements][index][:array_elements].unshift hash[:array_elements][index - 1]
                     hash[:array_elements][index - 1] = hash[:array_elements][index]
                   end
                 else
-                  hash[:array_elements][index][:array_elements].unshirf hash[:array_elements][index - 1]
+                  hash[:array_elements][index][:array_elements].unshift hash[:array_elements][index - 1]
                   hash[:array_elements][index - 1] = hash[:array_elements][index]
                 end
                 hash[:array_elements].delete_at(index)
@@ -428,6 +470,7 @@ class Trigonometry < ApplicationRecord
             end
           end
         end
+
         if hash[:array_elements].length == 1
           hash = hash[:array_elements].first
         end
