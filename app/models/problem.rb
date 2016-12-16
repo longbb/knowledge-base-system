@@ -6,7 +6,7 @@ class Problem < ApplicationRecord
       def solve_trigonometric_equation trigonometric_equation, array_steps, depth
         if @solution.present?
           return
-        elsif depth >= 3
+        elsif depth >= 2
           return false
         else
           set_new_variable = false
@@ -20,9 +20,9 @@ class Problem < ApplicationRecord
             @new_variable.push Calculate.recover_old_element @new_variable.last, new_variable
             new_variable = Trigonometry.convert_normal_type new_variable
             if new_trigonometric_equation[:new_equation].kind_of? Hash
-              array_steps.push({ message: "Đặt x = #{ new_variable }", equation: new_trigonometric_equation[:new_equation] })
+              array_steps.push({ message: "Đặt x = `#{ new_variable }`", equation: new_trigonometric_equation[:new_equation] })
             else
-              array_steps.push({ message: "Đặt x = #{ new_variable }", equation: new_trigonometric_equation[:new_equation] + " = 0" })
+              array_steps.push({ message: "Đặt x = `#{ new_variable }`", equation: new_trigonometric_equation[:new_equation] + " = 0" })
             end
           end
           if Problem.matching_problem_types new_trigonometric_equation[:new_equation]
@@ -743,7 +743,7 @@ class Problem < ApplicationRecord
       b = parameters[1]
       c = parameters[2]
       new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
-      result.push({ message: "Đặt sin(x) = t ta có: ", equation: new_problem })
+      result.push({ message: "Đặt `sin(x) = t` ta có: ", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
       step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
@@ -774,7 +774,7 @@ class Problem < ApplicationRecord
       b = parameters[1]
       c = parameters[2]
       new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
-      result.push({ message: "Đặt cos(x) = t ta có", equation: new_problem })
+      result.push({ message: "Đặt `cos(x) = t` ta có", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
       step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
@@ -805,7 +805,7 @@ class Problem < ApplicationRecord
       b = parameters[1]
       c = parameters[2]
       new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
-      result.push({ message: "Đặt tan(x) = t ta có", equation: new_problem })
+      result.push({ message: "Đặt `tan(x) = t` ta có", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
       step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
@@ -836,7 +836,7 @@ class Problem < ApplicationRecord
       b = parameters[1]
       c = parameters[2]
       new_problem = a.to_s + "*t^[2] + " + b.to_s + "*t + " + c.to_s + "= 0"
-      result.push({ message: "Đặt cotan(x) = t ta có", equation: new_problem })
+      result.push({ message: "Đặt `cotan(x) = t` ta có", equation: new_problem })
       array_equation = Problem.solve_equation_level_2 parameters
       step2 = { message: "Giải phương trình trên ta có: ", equation: array_equation[0][:equation] }
       result.push(step2)
@@ -869,20 +869,20 @@ class Problem < ApplicationRecord
       arr_x = Array.new
       if a * Math.sqrt(1 - Math.cos(Math::PI) ** 2) + b * Math.cos(Math::PI) + c != 0
         step1 = {
-          message: "Với cos(x/2) = 0 <=> x = 180 + k*360, ta có: ",
+          message: "Với `cos(x/2) = 0 <=> x = 180 + k*360`, ta có: ",
           equation: "Phương trình vô nghiệm"
         }
       else
         step1 = {
-          message: "Với cos(x/2) = 0 <=> x = 180 + k*360, ta có: ",
+          message: "Với `cos(x/2) = 0 <=> x = 180 + k*360`, ta có: ",
           equation: "Phương trình thỏa mãn"
         }
         arr_x.push("180 + k*360")
       end
       result.push(step1)
       result.push({
-        message: "Với cos(x/2) != 0 <=> x != 180 + k*360, Đặt t = tan(x/2), suy ra: \n" +
-          "sin(x) = 2*t/(1 + t^2), cos(x) = (1 - t^2)/(1 + t^2). \n Khi đó phương trình ban đầu có dạng: ",
+        message: "Với `cos(x/2) != 0 <=> x != 180 + k*360`, Đặt `t = tan(x/2)`, suy ra: \n" +
+          "`sin(x) = 2*t/(1 + t^2), cos(x) = (1 - t^2)/(1 + t^2)`. \n Khi đó phương trình ban đầu có dạng: ",
         equation: a.to_s + "*2*t/(1 + t^2) + " + b.to_s + "*(1 - t^2)/(1 + t^2)" + c.to_s + " = 0"
       })
       first_element = -1 * c + b
@@ -903,7 +903,7 @@ class Problem < ApplicationRecord
           step4 = Problem.solve_problem_bt13 [1, -equation]
           x = step4[1][:equation][0].split(" + ")[0].to_i * 2
           if x == 180
-            result.push({ message: "Loại vì x != 180 + k*360 => Phương trình vô nghiệm", equation: [] })
+            result.push({ message: "Loại vì `x != 180 + k*360` => Phương trình vô nghiệm", equation: [] })
           else
             arr_x.push(x.to_s + " + k*360")
           end
@@ -930,11 +930,11 @@ class Problem < ApplicationRecord
       second_element = c - a
       third_element = -2 * d - c -a
       result.push({
-        message: "Sử dụng sin(x)^2 = (1 - cos(2*x))/2, cos(x)^2 = (1 + cos(2*x))/2, sin2x = 2 * sin(x) * cos(x) ta được: ",
+        message: "Sử dụng `sin(x)^2 = (1 - cos(2*x))/2, cos(x)^2 = (1 + cos(2*x))/2, sin2x = 2 * sin(x) * cos(x)` ta được: ",
         equation: first_element.to_s + "*sin(2*x) + " + second_element.to_s + "*cos(2*x) = " + third_element.to_s + " (1)"
       })
       result.push({
-        message: "Đặt 2*x = t ta có: ",
+        message: "Đặt `2*x = t` ta có: ",
         equation: first_element.to_s + "*sin(t) + " + second_element.to_s + "*cos(t) = " + third_element.to_s + " (2)"
       })
       array_steps = Problem.solve_problem_bt31 [first_element, second_element, - third_element]
@@ -974,7 +974,7 @@ class Problem < ApplicationRecord
       second_element = 2 * a
       third_element = 2 * c - b
       result.push({
-        message: "Đặt sin(x) + cos(x) = t, điều kiện |t| <= sqrt(2) suy ra sin(x)*cos(x) = (t^2 -1)/2.\n " +
+        message: "Đặt `sin(x) + cos(x) = t`, điều kiện `|t| <= sqrt(2)` suy ra `sin(x)*cos(x) = (t^2 -1)/2`.\n " +
           "Khi đó phương trình ban đầu có dạng: ",
         equation: a.to_s + "*t + " + b.to_s + "*(t^2 -1)/2 + " + c.to_s + " = 0"
       })
@@ -1003,7 +1003,7 @@ class Problem < ApplicationRecord
             end
           else
             result.push({
-              message: "Loại nghiệm này do không thỏa mãn điều kiện |t| <= sqrt(2)",
+              message: "Loại nghiệm này do không thỏa mãn điều kiện `|t| <= sqrt(2)`",
               equation: []
             })
           end
@@ -1026,7 +1026,7 @@ class Problem < ApplicationRecord
       b = parameters[1]
       c = parameters[2]
       result.push({
-        message: "Đặt sin(x) - cos(x) = t, điều kiện |t| <= sqrt(2) suy ra sin(x)*cos(x) = (1 - t^2)/2.\n " +
+        message: "Đặt `sin(x) - cos(x) = t`, điều kiện `|t| <= sqrt(2)` suy ra `sin(x)*cos(x) = (1 - t^2)/2`.\n " +
           "Khi đó phương trình ban đầu có dạng: ",
         equation: a.to_s + "*t + " + b.to_s + "*(1 - t^2)/2 + " + c.to_s + " = 0"
       })
@@ -1053,7 +1053,7 @@ class Problem < ApplicationRecord
             end
           else
             result.push({
-              message: "Loại nghiệm này do không thỏa mãn điều kiện |t| <= sqrt(2)",
+              message: "Loại nghiệm này do không thỏa mãn điều kiện `|t| <= sqrt(2)`",
               equation: []
             })
           end

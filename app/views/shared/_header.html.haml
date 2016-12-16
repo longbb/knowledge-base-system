@@ -24,20 +24,26 @@
       %li.xn-title
         Navigation
       %li
-        %a{ href: "#" }
-          %span.fa.fa-desktop
+        %a{ href: user_path(current_user) }
+          %span.fa.fa-user
           %span.xn-text
-            current_user.name
+            = current_user.name
       %li
-        %a{ href: "#" }
-          %span.fa.fa-desktop
+        %a{ href: new_trigonometry_path }
+          %span.fa.fa-calculator
           %span.xn-text
-            All Groups
+            Calculator
       %li
-        %a{ href: "#" }
-          %span.fa.fa-desktop
+        %a{ href: histories_path }
+          %span.fa.fa-history
           %span.xn-text
-            Your Groups
+            History
+      - if current_user.is_expert == "true"
+        %li
+          %a{ href: rules_path }
+            %span.fa.fa-rss-square
+            %span.xn-text
+              Rules
 
   .page-content
     %ul.x-navigation.x-navigation-horizontal.x-navigation-panel
