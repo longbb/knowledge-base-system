@@ -5,7 +5,7 @@
   %li.active
     Calculator
 .page-title
-  %h1
+  %h2
     %span.fa.fa-calculator
     Calculator
 .page-content-wrap
@@ -14,7 +14,7 @@
       .row
         %h3.text-center.calculator-logo Trigonometry Calculator
         #result
-          = form_tag(trigonometry_path(id: "trigonometry"), method: :get) do
+          = form_tag(trigonometries_path, method: :post) do
             .form-group
               = text_field_tag :trigonometry_equation, params[:trigonometry_equation], id: "trigonometry_equation", readonly: true, class: "form-control"
             .form-group

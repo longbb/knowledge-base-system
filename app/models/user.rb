@@ -2,6 +2,8 @@ class User < ApplicationRecord
   before_save { self.email = email.downcase }
   before_save :generate_password_digest
 
+  has_many :histories
+
   attr_accessor :password
 
   validates :name, presence: true
