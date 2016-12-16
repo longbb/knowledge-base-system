@@ -1,0 +1,39 @@
+%ul.breadcrumb
+  %li
+    %a{ href: "#" }
+      Home
+  %li.active Histories
+.page-title
+  %h2
+    %span.fa.fa-history
+    History
+.page-content-wrap
+  .row
+    .panel.panel-default
+      .panel-heading
+        %h3.panel-title
+          History
+      .panel-body
+        %table.table.table-striped
+          %thead
+            %tr
+              %th
+                ID
+              %th
+                Equation
+              %th
+                Calculate at
+              %th
+                Action
+          %tbody
+            - @histories.each do |history|
+              %tr
+                %td
+                  = history.id
+                %td
+                  = history.trynogometry_string
+                %td
+                  = history.created_at.to_date
+                %td
+                  = link_to "View Result", trigonometry_path(id: "trynogometry_string", trigonometry_equation: history.trynogometry_string), class: "btn btn-info btn-xs"
+        = will_paginate @histories
