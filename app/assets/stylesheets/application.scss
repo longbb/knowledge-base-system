@@ -13,6 +13,7 @@
 @import "joli/css/animate/animate.min";
 @import "joli/css/theme-default";
 @import "fonts";
+@import "paper";
 
 .logo-edit {
   width: 25%;
@@ -40,6 +41,7 @@ h3 {
   padding: 0px 15px;
   color: black;
 }
+
 #trigonometry_equation {
   width: 100%;
   height: 50px;
@@ -49,9 +51,11 @@ table {
   padding: 0px;
   margin: 10px 35px 0px 0px;
 }
+
 tr:hover {
   background: #DFD8D0 !important;
 }
+
 #equal {
   width: 462px;
 }
@@ -86,6 +90,7 @@ tr:hover {
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24537',GradientType=0);
   background-color:#c62d1f;
 }
+
 .btn:active {
   position:relative;
   top:1px;
@@ -113,4 +118,12 @@ tr:hover {
 .form-control {
   color: black !important;
   font-size: 15px;
+}
+
+/*solve-problem*/
+.solve-problem {
+  background-color: #ffffff;
+  p {
+    border-bottom: 1px solid grey;
+  }
 }

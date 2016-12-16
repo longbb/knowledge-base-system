@@ -1,0 +1,30 @@
+%ul.breadcrumb
+  %li
+    %a{ href: "#" }
+      Home
+  %li.active
+    Solve Problem
+.page-content-wrap
+  .row
+    .col-md-8
+      .paper
+        .row
+          %p.problem
+            = "Đề bài: `#{ params[:trigonometry_equation] }`"
+          %p.solve
+            Lời giải
+          #solution
+            - if @solution.present?
+              - @solution[:array_steps].each_index do |index|
+                %p
+                  %span#step
+                    Bước #{ index + 1 }:
+                  = @solution[:array_steps][index][:message]
+                %center
+                  %p
+                    - if @solution[:array_steps][index][:equation].kind_of? Hash
+                      = "`" + Trigonometry.decode_equation(@solution[:array_steps][index][:equation]) + "`"
+                    - elsif @solution[:array_steps][index][:equation].kind_of? Array
+                      = "`" + "x = " + @solution[:array_steps][index][:equation].to_s + "`"
+                    - else
+                      = "`" + @solution[:array_steps][index][:equation] + "`"
