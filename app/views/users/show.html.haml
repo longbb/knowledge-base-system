@@ -1,2 +1,28 @@
-%h2
-  Hello #{ current_user.email }
+%ul.breadcrumb
+  %li
+    %a{:href => "#"} Home
+  %li
+    %a{:href => "#"} User
+  %li.active Your information
+.page-content-wrap
+  .row
+    .col-md-3
+      .panel.panel-build
+        .panel-body.profile
+          .profile-image
+            %img{ src: asset_path("member.png") }
+          .profile-data
+            .profile-data-name #{ @user.name }
+          .panel-body.list-group.border-bottom
+            .list-group-item
+              %b
+                Name:
+              = @user.name
+            .list-group-item
+              %b
+                Email:
+              = @user.email
+            .list-group-item
+              %b
+                Expert:
+              = @user.is_expert

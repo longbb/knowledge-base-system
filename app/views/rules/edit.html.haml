@@ -1,0 +1,29 @@
+%ul.breadcrumb
+  %li
+    %a{:href => "#"} Home
+  %li
+    %a{:href => "#"} Rules
+.page-content-wrap
+  .row
+    .col-md-6.col-md-offset-3
+      .panel.panel-primary
+        = form_for @rule, method: :patch do |f|
+          .panel-body
+            %h3
+              Edit Rule
+            .title
+              = render "shared/error_messages", object: f.object
+            .form-group
+              .control-label
+                = label_tag "Before equation: "
+              = f.text_field :before, class: "form-control", placeholder: @rule.before
+            .form-group
+              .control-label
+                = label_tag "After equation: "
+              = f.text_field :after, class: "form-control", placeholder: @rule.after
+          .panel-footer
+            .form-group
+              .pull-right
+                = f.submit "Save", class: "btn btn-primary"
+
+

@@ -1,4 +1,11 @@
 class Rule < ApplicationRecord
+
+  validates :before, presence: true
+  validates :after, presence: true
+  validates :status, presence: true, inclusion: { in: ["active", "deleted"] }
+
+  default_scope { where(status: "active") }
+
   class << self
     def generate_children trigonometric_equation
       final_result = Array.new
@@ -751,29 +758,29 @@ class Rule < ApplicationRecord
     def name_of_rule rule
       case rule
       when "rule1"
-        return "Sử dụng cos(x+y) = cos(x)*cos(y) - sin(x)*sin(y)"
+        return "Sử dụng `cos(x+y) = cos(x)*cos(y) - sin(x)*sin(y)`"
       when "rule2"
-        return "Sử dụng sin(x+y) = sin(x)*cos(y) + cos(x)*sin(y)"
+        return "Sử dụng `sin(x+y) = sin(x)*cos(y) + cos(x)*sin(y)`"
       when "rule3"
-        return "Sử dụng tan(x+y) = [tan(x)+ tan(y)] / [1 - tan(x)*tan(y)]"
+        return "Sử dụng `tan(x+y) = [tan(x)+ tan(y)] / [1 - tan(x)*tan(y)]`"
       when "rule4"
-        return "Sử dụng sin(2*x) = 2 * sin(x) * cos(x)"
+        return "Sử dụng `sin(2*x) = 2 * sin(x) * cos(x)`"
       when "rule5"
-        return "Sử dụng cos(2*x) = cos(x)^2 - sin(x)^2"
+        return "Sử dụng `cos(2*x) = cos(x)^2 - sin(x)^2`"
       when "rule6"
-        return "Sử dụng cos(2*x) = 2*cos(x)^2 - 1"
+        return "Sử dụng `cos(2*x) = 2*cos(x)^2 - 1`"
       when "rule7"
-        return "Sử dụng cos(2*x) = 1 - 2*sin(x)^2"
+        return "Sử dụng `cos(2*x) = 1 - 2*sin(x)^2`"
       when "rule8"
-        return "Sử dụng sin(x)^2 = [1 - cos(2*x)] / 2"
+        return "Sử dụng `sin(x)^2 = [1 - cos(2*x)] / 2`"
       when "rule9"
-        return "Sử dụng cos(x)^2 = [1 + cos(2*x)] / 2"
+        return "Sử dụng `cos(x)^2 = [1 + cos(2*x)] / 2`"
       when "rule10"
-        return "Sử dụng sin(x)*cos(x) =  0.5 * sin(2*x)"
+        return "Sử dụng `sin(x)*cos(x) =  0.5 * sin(2*x)`"
       when "rule11"
-        return "Sử dụng sin(x)^2 = 1 - cos(x)^2"
+        return "Sử dụng `sin(x)^2 = 1 - cos(x)^2`"
       when "rule12"
-        return "Sử dụng cos(x)^2 = 1 - sin(x)^2"
+        return "Sử dụng `cos(x)^2 = 1 - sin(x)^2`"
       end
     end
   end

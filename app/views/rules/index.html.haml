@@ -1,0 +1,43 @@
+%ul.breadcrumb
+  %li
+    %a{:href => "#"} Home
+  %li
+    %a{:href => "#"} Rules
+.page-title
+  %h2
+    %span.fa.fa-rss-square
+    Rules
+.page-content-wrap
+  .row
+    .panel.panel-default
+      .panel-heading
+        %h3.panel-title
+          Rule
+        .pull-right
+          = link_to "New Rule", new_rule_path, class: "btn btn-info"
+      .panel-body
+        %table.table.table-striped
+          %tr
+            %th #ID
+            %th Rule: before_equation
+            %th Rule: after_equation
+            %th Status
+            %th Created At
+            %th Action
+          %tbody
+            - @rules.each do |rule|
+              %tr
+                %td
+                  = rule.id
+                %td
+                  = rule.before
+                %td
+                  = rule.after
+                %td
+                  = rule.status
+                %td
+                  = rule.created_at
+                %td
+                  = link_to "Edit", edit_rule_path(rule), class: "btn btn-success btn-xs"
+                  = link_to "Delete", rule_path(rule), method: :delete, class: "btn btn-danger btn-xs"
+
