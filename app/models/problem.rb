@@ -3,10 +3,12 @@ class Problem < ApplicationRecord
     def solve_equation trigonometric_equation
       @solution = nil
       @new_variable = [["1", "0"]]
-      def solve_trigonometric_equation trigonometric_equation, array_steps, depth
+      max_depth = 10
+      current_depth = 0
+      def solve_trigonometric_equation trigonometric_equation, array_steps, depth, current_depth
         if @solution.present?
           return
-        elsif depth >= 2
+        elsif depth >= current_depth
           return false
         else
           set_new_variable = false
@@ -57,7 +59,7 @@ class Problem < ApplicationRecord
               else
                 array_valid_children.each do |child|
                   array_steps.push(child)
-                  result = solve_trigonometric_equation(child[:equation], array_steps, depth + 1)
+                  result = solve_trigonometric_equation(child[:equation], array_steps, depth + 1, current_depth)
                   if @solution.present?
                     return @solution
                   elsif !result
@@ -76,7 +78,10 @@ class Problem < ApplicationRecord
           end
         end
       end
-      solve_trigonometric_equation trigonometric_equation, [], 0
+      while ((!@solution.present?) && (current_depth <= max_depth))
+        current_depth += 1
+        solve_trigonometric_equation trigonometric_equation, [], 0, current_depth
+      end
       if @new_variable.last != ["1", "0"]
         equation = Array.new()
         @solution[:array_steps].last[:equation].each do |result|
